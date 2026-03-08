@@ -1,0 +1,30 @@
+name: Run Master Intelligence Agent
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # every 30 minutes UTC
+  workflow_dispatch:         # manual trigger
+
+jobs:
+  run-edge-function:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify Supabase Secret
+        run: |
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "Error: SUPABASE_SERVICE_ROLE_KEY is empty"
+            exit 1
+          fi
+          echo "Supabase key length: ${#SUPABASE_SERVICE_ROLE_KEY}"
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Call Supabase Edge Function
+        run: |
+          echo "Calling Master Intelligence Agent Edge Function..."
+          curl -v -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+               "https://jsqurmsvipibxuuejwza.functions.supabase.co/master-intelligence-agent?limit=10"
+          echo "Done."
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
