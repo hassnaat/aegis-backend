@@ -1,0 +1,20 @@
+name: Run Master Intelligence Agent
+
+# Trigger: every 30 minutes + manual trigger
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # every 30 minutes (UTC)
+  workflow_dispatch:          # allows manual runs
+
+jobs:
+  run-edge-function:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Call Supabase Edge Function
+        run: |
+          echo "Calling Master Intelligence Agent Edge Function..."
+          curl -s -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+               "https://jsqurmsvipibxuuejwza.functions.supabase.co/master-intelligence-agent?limit=10" \
+               -o /dev/null
+          echo "Done."
